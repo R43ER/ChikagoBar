@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="ChicagoBar.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Пиццерия 'Chikago' - Каса" WindowStartupLocation="CenterScreen" FontFamily="Arial" Height="450" Width="800"
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Левая панель с кнопками -->
+        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="10">
+            <Button x:Name="btnOrder" Content="F2 Заказ" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnView" Content="F3 Просмотр" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnReturn" Content="F4 Возврат" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnCash" Content="F5 Каса" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnEmpty1" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
+            <Button x:Name="btnEndOfDay" Content="F7 Конец дня" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnEmpty2" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
+            <Button x:Name="btnExit" Content="F10 Выход" Width="100" Height="30" Margin="5"/>
+        </StackPanel>
+
+        <!-- Правая панель с изображением -->
+        <Border Grid.Column="1" Margin="10" CornerRadius="20">
+            <Image Source="Images/main_bg.png" Stretch="Uniform"/>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="ChikagoBar.OrderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Пиццерия 'Chikago' - Каса - Заказ № 1" Height="800" Width="1400"
+        WindowStartupLocation="CenterScreen" FontFamily="Arial" FontSize="12">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель -->
+        <StackPanel Orientation="Vertical" Grid.Row="0" Background="White" Margin="10" HorizontalAlignment="Center">
+            <TextBlock Text="Пиццерия 'Chikago' - Каса - Заказ № 1" FontSize="16" FontWeight="Bold" TextAlignment="Center"/>
+            <TextBlock Text="19 февраля 2025 г. среда" FontSize="14" Foreground="Gray" TextAlignment="Center"/>
+            <TextBlock Text="22:45:17" FontSize="24" FontWeight="Bold" Foreground="Blue" TextAlignment="Center"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Список категорий -->
+            <ListBox Grid.Column="0" Margin="5" VerticalAlignment="Stretch">
+                <ListBoxItem Content="Пицца маленькая"/>
+                <ListBoxItem Content="Пицца большая"/>
+                <ListBoxItem Content="Пицца XXXL"/>
+                <ListBoxItem Content="Блинчики, лазанья"/>
+                <ListBoxItem Content="Первые блюда"/>
+                <ListBoxItem Content="Вторые блюда"/>
+                <ListBoxItem Content="Салаты"/>
+                <ListBoxItem Content="Холодные напитки"/>
+            </ListBox>
+
+            <!-- Выбор блюда -->
+            <ListBox Grid.Column="1" Margin="5" VerticalAlignment="Stretch">
+                <ListBoxItem Content="Свинина (50)"/>
+                <ListBoxItem Content="Сыр (50)"/>
+                <ListBoxItem Content="Пицца большая с острым соусом"/>
+            </ListBox>
+
+            <!-- Количество и кнопки управления -->
+            <StackPanel Grid.Column="2" Margin="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <TextBlock Text="Количество" FontSize="14"/>
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="1" IsChecked="True"/>
+                    <RadioButton Content="2"/>
+                    <RadioButton Content="3"/>
+                    <RadioButton Content="Другое"/>
+                    <TextBox Width="40"/>
+                </StackPanel>
+                <Button Content="Добавить в заказ" Margin="5" Width="150"/>
+                <Button Content="Удалить" Margin="5" Width="150"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Нижняя панель с таблицей и оплатой -->
+        <Grid Grid.Row="2" Background="White" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <DataGrid Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" AutoGenerateColumns="False" HeadersVisibility="Column">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Блюдо" Width="*"/>
+                    <DataGridTextColumn Header="К-во" Width="50"/>
+                    <DataGridTextColumn Header="Ед.изм." Width="50"/>
+                    <DataGridTextColumn Header="Цена" Width="80"/>
+                    <DataGridTextColumn Header="Сумма" Width="80"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Button Content="Оплата" Grid.Column="1" Margin="5" Width="100"/>
+            <TextBlock Text="574" Grid.Column="2" FontSize="24" FontWeight="Bold" Foreground="Blue" Margin="10"/>
+        </Grid>
+    </Grid>
+</Window>
