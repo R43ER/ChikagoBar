@@ -18,7 +18,7 @@ namespace ChikagoBar
     /// </summary>
     public partial class OrderWindow : Window
     {
-        public OrderWindow()
+        public OrderWindow(bool discount, string discountCard)
         {
             InitializeComponent();
         }

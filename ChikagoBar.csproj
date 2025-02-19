@@ -71,6 +71,9 @@
     <Compile Include="CashWindow.xaml.cs">
       <DependentUpon>CashWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="InputBox.xaml.cs">
+      <DependentUpon>InputBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ReturnWindow.xaml.cs">
       <DependentUpon>ReturnWindow.xaml</DependentUpon>
     </Compile>
@@ -78,6 +81,10 @@
       <DependentUpon>ViewWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="CashWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InputBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
