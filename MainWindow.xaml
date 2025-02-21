@@ -13,6 +13,7 @@
 
         <!-- Левая панель с кнопками -->
         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="10">
+            <Button x:Name="btnEmpty5" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnOrder" Content="F2 Заказ" Width="100" Height="30" Margin="5"/>
             <Button x:Name="btnView" Content="F3 Просмотр" Width="100" Height="30" Margin="5"/>
             <Button x:Name="btnReturn" Content="F4 Возврат" Width="100" Height="30" Margin="5"/>
@@ -20,6 +21,7 @@
             <Button x:Name="btnEmpty1" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnEndOfDay" Content="F7 Конец дня" Width="100" Height="30" Margin="5"/>
             <Button x:Name="btnEmpty2" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
+            <Button x:Name="btnEmpty3" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnExit" Content="F10 Выход" Width="100" Height="30" Margin="5"/>
         </StackPanel>
 

@@ -13,6 +13,7 @@ namespace ChicagoBar
         public MainWindow()
         {
             InitializeComponent();
+            this.KeyDown += MainWindow_KeyDown;
             btnExit.Click += BtnExit_Click;
             btnEndOfDay.Click += BtnEndOfDay_Click;
             btnOrder.Click += BtnOrder_Click;
@@ -27,6 +28,31 @@ namespace ChicagoBar
 
             logFilePath = Path.Combine(logsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
         }
+        private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.F2:
+                    BtnOrder_Click(sender, e);
+                    break;
+                case System.Windows.Input.Key.F3:
+                    BtnView_Click(sender, e);
+                    break;
+                case System.Windows.Input.Key.F4:
+                    BtnReturn_Click(sender, e);
+                    break;
+                case System.Windows.Input.Key.F5:
+                    BtnCash_Click(sender, e);
+                    break;
+                case System.Windows.Input.Key.F7:
+                    BtnEndOfDay_Click(sender, e);
+                    break;
+                case System.Windows.Input.Key.F10:
+                    BtnExit_Click(sender, e);
+                    break;
+            }
+        }
+
 
         private void LogAction(string action)
         {
