@@ -79,6 +79,8 @@
     <Compile Include="InputBox.xaml.cs">
       <DependentUpon>InputBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OrderClass.cs" />
+    <Compile Include="ProductClass.cs" />
     <Compile Include="ReturnWindow.xaml.cs">
       <DependentUpon>ReturnWindow.xaml</DependentUpon>
     </Compile>
@@ -140,6 +142,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="database\bar.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="database\data.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

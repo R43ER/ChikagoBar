@@ -5,8 +5,65 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChikagoBar"
         mc:Ignorable="d"
-        Title="OrderWindow" Height="450" Width="800">
+        Title="Пиццерия 'Chikago' - Каса" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial" Height="600" Width="1200"
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/logo_check.bmp">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <!-- 30% -->
+            <ColumnDefinition Width="3*"/>
+            <!-- 30% -->
+            <ColumnDefinition Width="4*"/>
+            <!-- 40% -->
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="10,10,358,10.4" Grid.ColumnSpan="2">
+            <Button x:Name="btnExit" Content="F10 Выход" Margin="0,0,7.8,0" Height="39" VerticalAlignment="Bottom"/>
+            <TextBlock x:Name="curDate" Margin="11,0,9,0" TextWrapping="Wrap" Text="22 февраля 2025 г." VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
+            <TextBlock x:Name="curDay" Margin="10,23,9,0" TextWrapping="Wrap" Text="суббота" VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
+            <TextBlock x:Name="curTime" Margin="10,46,8,0" TextWrapping="Wrap" Text="14:24:24" VerticalAlignment="Top" TextAlignment="Center" FontWeight="Bold" FontSize="24" Foreground="#FF0031FF"/>
+            <DataGrid x:Name="grpProdDataGrid" Height="417" Margin="0,79,9,0" VerticalAlignment="Top" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="grpProdDataGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Выберите группу блюд" IsReadOnly="True" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        <DataGrid x:Name="asortDataGrid" Grid.Column="1" Margin="10,10,10,10.4" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Выберите блюдо" IsReadOnly="True" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Column="2" Margin="10,10,9.6,10.4">
+            <DataGrid x:Name="orderDataGrid" Margin="10,106,10,124">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Блюдо" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Кол-во" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Ед.изм." IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Цена" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Сумма" IsReadOnly="True" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Button Content="Добавить в заказ" Margin="10,54,10,0" VerticalAlignment="Top" FontSize="18" Height="40"/>
+            <GroupBox Header="Количество" HorizontalAlignment="Left" Height="49" Margin="10,0,0,0" VerticalAlignment="Top" Width="305">
+                <StackPanel x:Name="myStackPanel" Orientation="Horizontal" Margin="0,0,-2.4,-0.4">
+                    <RadioButton Content="1" FlowDirection="RightToLeft" Margin="10,6,10,6.8" GroupName="quantity" IsChecked="True"/>
+                    <RadioButton Content="2" FlowDirection="RightToLeft" Margin="10,6,10,6.8" GroupName="quantity"/>
+                    <RadioButton Content="3" FlowDirection="RightToLeft" Margin="10,6,10,6.8" GroupName="quantity"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,6,10,0" TextWrapping="Wrap" Text="Другое" VerticalAlignment="Top"/>
+                    <TextBox TextWrapping="Wrap" Text="" Width="82" Margin="0,0,0,0"/>
+                </StackPanel>
+            </GroupBox>
+            <Button Content="Удалить" Margin="0,18,10,0" VerticalAlignment="Top" FontSize="18" HorizontalAlignment="Right" Width="91"/>
+            <TextBlock HorizontalAlignment="Left" Margin="31,0,0,78" TextWrapping="Wrap" Text="Заказ" VerticalAlignment="Bottom" FontSize="24" Foreground="#FF0031FF"/>
+            <TextBlock HorizontalAlignment="Left" Margin="31,0,0,10" TextWrapping="Wrap" Text="1" VerticalAlignment="Bottom" Foreground="Red" Height="62" Width="63" FontSize="42" TextAlignment="Center" FontWeight="Bold"/>
+            <Button Content="Оплата" HorizontalAlignment="Left" Margin="136,0,0,77" Width="160" Height="28" VerticalAlignment="Bottom"/>
+            <TextBlock Margin="301,0,0,41" TextWrapping="Wrap" Text="0" VerticalAlignment="Bottom" FontSize="42" TextAlignment="Right" Foreground="#FF0031FF" FontWeight="Bold"/>
+        </Grid>
     </Grid>
+    <Window.InputBindings>
+        <KeyBinding Key="F10" Command="{Binding ExitCommand}" />
+    </Window.InputBindings>
 </Window>
