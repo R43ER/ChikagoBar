@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace ChikagoBar
 {
@@ -11,6 +12,11 @@ namespace ChikagoBar
             InitializeComponent();
             this.Title = title;
             lblMessage.Text = message;
+        }
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            txtInput.Focus();
         }
 
         private void BtnOk_Click(object sender, RoutedEventArgs e)

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ChikagoBar"
         mc:Ignorable="d"
         Title="Пиццерия 'Chikago' - Каса" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial" Height="600" Width="1200"
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/logo_check.bmp">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -16,24 +16,24 @@
         <!-- Левая панель с кнопками -->
         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="10">
             <Button x:Name="btnEmpty1" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
-            <Button x:Name="btnPlus" Content="F2 Внести" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnPlus" Content="F2 Внести" Width="100" Height="30" Margin="5" Click="btnPlus_Click"/>
             <Button x:Name="btnEmpty2" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
-            <Button x:Name="btnMinus" Content="F4 Выдача" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnMinus" Content="F4 Выдача" Width="100" Height="30" Margin="5" Click="btnMinus_Click"/>
             <Button x:Name="btnEmpty3" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnEmpty4" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnEmpty5" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
-            <Button x:Name="btnXReport" Content="F8 X-отчет" Width="100" Height="30" Margin="5"/>
-            <Button x:Name="btnZReport" Content="F9 Z-отчет" Width="100" Height="30" Margin="5"/>
-            <Button x:Name="btnExit" Content="F10 Выход" Width="100" Height="30" Margin="5"/>
+            <Button x:Name="btnXReport" Content="F8 X-отчет" Width="100" Height="30" Margin="5" Click="btnXReport_Click"/>
+            <Button x:Name="btnZReport" Content="F9 Z-отчет" Width="100" Height="30" Margin="5" Click="btnZReport_Click"/>
+            <Button x:Name="btnExit" Content="F10 Выход" Width="100" Height="30" Margin="5" Click="btnExit_Click"/>
         </StackPanel>
 
-        <TextBlock Grid.Column="1" Margin="389.4,10,381.6,532.4" TextWrapping="Wrap" Text="Каса 1 - ЧП Блудова И.И." VerticalAlignment="Center" FontSize="24"/>
+        <TextBlock Grid.Column="1" Margin="389.4,10,381.6,0" TextWrapping="Wrap" Text="Каса 1 - ЧП Блудова И.И." VerticalAlignment="Top" FontSize="24"/>
         <Separator Grid.Column="1" Height="15" Margin="10.4,43,9.6,0" VerticalAlignment="Top"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,72,0,0" TextWrapping="Wrap" Text="Начало работы" VerticalAlignment="Top"/>
         <TextBlock x:Name="startTime" Grid.Column="1" Margin="368.4,63,339.6,0" TextWrapping="Wrap" Text="24.02.2025 23:50" VerticalAlignment="Top" FontSize="36" TextAlignment="Center"/>
         <TextBlock x:Name="startCash" Grid.Column="1" HorizontalAlignment="Right" Margin="0,63,9.6,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontSize="36"/>
         <Separator Grid.Column="1" Height="15" Margin="10.4,109,9.6,0" VerticalAlignment="Top"/>
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,308,0,0" TextWrapping="Wrap" Text="Движение денег" VerticalAlignment="Top" Width="114"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,330,0,0" TextWrapping="Wrap" Text="Движение денег" Width="114" Height="26" VerticalAlignment="Top"/>
         <DataGrid x:Name="cashDataGrid" Grid.Column="1" Margin="129.4,129,9.6,85.4">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Дата" IsReadOnly="True" Width="*"/>
@@ -43,8 +43,11 @@
             </DataGrid.Columns>
         </DataGrid>
         <Separator Grid.Column="1" Margin="10.4,0,9.6,65.4" Height="15" VerticalAlignment="Bottom"/>
-        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,527,0,27.4" TextWrapping="Wrap" Text="Наличка"/>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,0,0,27.4" TextWrapping="Wrap" Text="Наличка" Height="16" VerticalAlignment="Bottom"/>
         <TextBlock x:Name="curCash" Grid.Column="1" Margin="0,0,9.6,10.4" TextWrapping="Wrap" Text="0" FontSize="42" Height="48" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="294" TextAlignment="Right" Foreground="#FF0031FF"/>
 
     </Grid>
+    <Window.InputBindings>
+        <KeyBinding Key="F10" Command="{Binding ExitCommand}" />
+    </Window.InputBindings>
 </Window>

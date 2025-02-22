@@ -3,16 +3,20 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 
 namespace ChicagoBar
 {
     public partial class MainWindow : Window
     {
         private readonly string logFilePath;
+        public ICommand ExitCommand { get; }
 
         public MainWindow()
         {
             InitializeComponent();
+            ExitCommand = new RelayCommand(_ => BtnExit_Click(this, null));
+            this.DataContext = this;
             this.KeyDown += MainWindow_KeyDown;
             btnExit.Click += BtnExit_Click;
             btnEndOfDay.Click += BtnEndOfDay_Click;
@@ -46,9 +50,6 @@ namespace ChicagoBar
                     break;
                 case System.Windows.Input.Key.F7:
                     BtnEndOfDay_Click(sender, e);
-                    break;
-                case System.Windows.Input.Key.F10:
-                    BtnExit_Click(sender, e);
                     break;
             }
         }
@@ -109,7 +110,7 @@ namespace ChicagoBar
         {
             LogAction("Кнопка Касса нажата");
             InputBox passwordBox = new InputBox("Введите пароль", "Авторизация");
-            if (passwordBox.ShowDialog() == true && passwordBox.InputText == "12345678")
+            if (passwordBox.ShowDialog() == true && passwordBox.InputText == "123")
             {
                 LogAction("Успешный вход в Кассу");
                 CashWindow cashWindow = new CashWindow();
@@ -168,6 +169,24 @@ namespace ChicagoBar
         private void ShutdownComputer()
         {
             Process.Start("shutdown", "/s /t 0");
+        }
+
+        public class RelayCommand : ICommand
+        {
+            private readonly Action<object> execute;
+            private readonly Predicate<object> canExecute;
+
+            public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
+            {
+                this.execute = execute;
+                this.canExecute = canExecute;
+            }
+
+            public bool CanExecute(object parameter) => canExecute?.Invoke(parameter) ?? true;
+
+            public void Execute(object parameter) => execute(parameter);
+
+            public event EventHandler CanExecuteChanged;
         }
     }
 }

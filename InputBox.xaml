@@ -19,7 +19,7 @@
 
         <!-- Кнопки -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="ОК" Width="70" Margin="5" Click="BtnOk_Click"/>
+            <Button Content="ОК" Width="70" Margin="5" Click="BtnOk_Click" IsDefault="True"/>
             <Button Content="Отмена" Width="70" Margin="5" Click="BtnCancel_Click"/>
         </StackPanel>
     </Grid>

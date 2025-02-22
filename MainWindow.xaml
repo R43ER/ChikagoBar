@@ -3,7 +3,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Пиццерия 'Chikago' - Каса" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial" Height="600" Width="1200"
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/logo_check.bmp">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -21,7 +21,7 @@
             <Button x:Name="btnEmpty1" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnEndOfDay" Content="F7 Конец дня" Width="100" Height="30" Margin="5"/>
             <Button x:Name="btnEmpty2" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
-            <Button x:Name="btnEmpty3" Content="" Width="100" Height="30" Margin="5" IsEnabled="False"/>
+            <Button x:Name="btnEgais" Content="F9 ЕГАИС" Width="100" Height="30" Margin="5" IsEnabled="False"/>
             <Button x:Name="btnExit" Content="F10 Выход" Width="100" Height="30" Margin="5"/>
         </StackPanel>
 
@@ -30,4 +30,7 @@
             <Image Source="Images/main_bg.png" Stretch="Uniform"/>
         </Border>
     </Grid>
+    <Window.InputBindings>
+        <KeyBinding Key="F10" Command="{Binding ExitCommand}" />
+    </Window.InputBindings>
 </Window>
