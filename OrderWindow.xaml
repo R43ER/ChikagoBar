@@ -29,9 +29,11 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-        <DataGrid x:Name="asortDataGrid" Grid.Column="1" Margin="10,10,10,10.4" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" >
+        <DataGrid x:Name="asortDataGrid" Grid.Column="1" Margin="10,10,10,10.4" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="asortDataGrid_SelectionChanged" >
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding VimirNo}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding Price}" Header="ID" Visibility="Hidden"/>
                 <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Выберите блюдо" IsReadOnly="True" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

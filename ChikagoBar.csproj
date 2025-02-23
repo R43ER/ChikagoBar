@@ -76,6 +76,7 @@
     <Compile Include="CashWindow.xaml.cs">
       <DependentUpon>CashWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseHelper.cs" />
     <Compile Include="InputBox.xaml.cs">
       <DependentUpon>InputBox.xaml</DependentUpon>
     </Compile>

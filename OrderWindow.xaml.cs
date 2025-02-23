@@ -17,31 +17,45 @@ namespace ChikagoBar
         public ICommand ExitCommand { get; }
         List<GrpProdItem> grpProdList = new List<GrpProdItem>();
         List<AsortItem> asortList = new List<AsortItem>();
+        List<VimirItem> vimirList = new List<VimirItem>();
 
         public OrderWindow(bool discount, string discountCard)
         {
             InitializeComponent();
             SetDateTime();
             StartClock();
-            LoadGrpProd();
+            LoadData();
         }
 
-        private void LoadGrpProd()
+        private void LoadData()
         {
-            ExecuteQuery("data.db", "SELECT * FROM GrpProd;", reader =>
+            DatabaseHelper.BeginTransaction(DatabaseType.Data);
+            DatabaseHelper.ExecuteQuery(DatabaseType.Data, "SELECT * FROM Vimir;", reader =>
+            {
+                while (reader.Read())
+                {
+                    vimirList.Add(new VimirItem
+                    {
+                        VimirNo = reader.GetInt32(0),
+                        Name = reader.GetString(1),
+                        NotFractal = reader.GetFloat(2) != 0.0f
+                    });
+                }
+            });
+            DatabaseHelper.ExecuteQuery(DatabaseType.Data, "SELECT * FROM GrpProd;", reader =>
             {
                 while (reader.Read())
                 {
                     grpProdList.Add(new GrpProdItem
                     {
                         ID = reader.GetInt32(0),
-                        Name = reader.GetString(1)
+                        Name = reader.GetString(1),
                     });
                 }
             });
             grpProdDataGrid.ItemsSource = grpProdList; // Привязываем данные к DataGrid
+            DatabaseHelper.CommitTransaction();
         }
-
 
         private void SetDateTime()
         {
@@ -91,56 +105,6 @@ namespace ChikagoBar
             File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
         }
 
-        private void ExecuteNonQuery(string databaseFileName, string sql, params SQLiteParameter[] parameters)
-        {
-            string databasePath = Path.Combine("database", databaseFileName);
-            if (!File.Exists(databasePath))
-            {
-                MessageBox.Show($"Файл базы данных {databaseFileName} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            using (var connection = new SQLiteConnection($"Data Source={databasePath};Version=3;"))
-            {
-                connection.Open();
-                using (var command = new SQLiteCommand(sql, connection))
-                {
-                    if (parameters != null)
-                        command.Parameters.AddRange(parameters);
-
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private void ExecuteQuery(string databaseFileName, string sql, Action<SQLiteDataReader> processRow, params SQLiteParameter[] parameters)
-        {
-            string databasePath = Path.Combine("database", databaseFileName);
-            if (!File.Exists(databasePath))
-            {
-                MessageBox.Show($"Файл базы данных {databaseFileName} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            using (var connection = new SQLiteConnection($"Data Source={databasePath};Version=3;"))
-            {
-                connection.Open();
-                using (var command = new SQLiteCommand(sql, connection))
-                {
-                    if (parameters != null)
-                        command.Parameters.AddRange(parameters);
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            processRow(reader);
-                        }
-                    }
-                }
-            }
-        }
-
         public class RelayCommand : ICommand
         {
             private readonly Action<object> execute;
@@ -166,8 +130,7 @@ namespace ChikagoBar
                 asortList.Clear();
                 asortDataGrid.ItemsSource = null; // Очистка DataGrid
 
-                // Анонимный метод вместо лямбда-выражения
-                ExecuteQuery("data.db", $"SELECT * FROM Asort WHERE Actual = true AND G{selectedItem.ID} = true;", delegate (SQLiteDataReader reader)
+                DatabaseHelper.ExecuteQuery(DatabaseType.Data, $"SELECT * FROM Asort WHERE Actual = true AND G{selectedItem.ID} = true;", delegate (SQLiteDataReader reader)
                 {
                     List<AsortItem> tempList = new List<AsortItem>();
 
@@ -176,7 +139,9 @@ namespace ChikagoBar
                         tempList.Add(new AsortItem
                         {
                             ID = reader.GetInt32(0),
-                            Name = reader.GetString(3)
+                            Name = reader.GetString(3),
+                            VimirNo = reader.GetInt32(4),
+                            Price = reader.GetFloat(5)
                         });
                     }
 
@@ -185,6 +150,14 @@ namespace ChikagoBar
                     tempList.Clear();
                     asortDataGrid.ItemsSource = asortList; // Привязываем данные к DataGrid
                 });
+            }
+        }
+
+        private void asortDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (asortDataGrid.SelectedItem is AsortItem selectedItem)
+            {
+
             }
         }
     }
@@ -199,6 +172,15 @@ namespace ChikagoBar
     {
         public int ID { get; set; }
         public string Name { get; set; }
+        public int VimirNo { get; set; }
+        public float Price { get; set; }
+    }
+
+    public class VimirItem
+    {
+        public int VimirNo { get; set; }
+        public string Name { get; set; }
+        public bool NotFractal { get; set; }
     }
 
 }
