@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ChikagoBar"
         mc:Ignorable="d"
         Title="Пиццерия 'Chikago' - Каса" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial" Height="600" Width="1200"
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/logo_check.bmp">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/chicago_pizza_icon.bmp">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
@@ -17,12 +17,13 @@
             <!-- 40% -->
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Margin="10,10,358,10.4" Grid.ColumnSpan="2">
-            <Button x:Name="btnExit" Content="F10 Выход" Margin="0,0,7.8,0" Height="39" VerticalAlignment="Bottom" Click="btnExit_Click"/>
+        <Grid Grid.Column="0" Margin="10,10,9.6,10.4">
+            <Button x:Name="btnExit" Content="F10 Выход" Margin="10,0,10,0" Height="39" VerticalAlignment="Bottom" Click="btnExit_Click"/>
             <TextBlock x:Name="curDate" Margin="11,0,9,0" TextWrapping="Wrap" Text="22 февраля 2025 г." VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
             <TextBlock x:Name="curDay" Margin="10,23,9,0" TextWrapping="Wrap" Text="суббота" VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
             <TextBlock x:Name="curTime" Margin="10,46,8,0" TextWrapping="Wrap" Text="14:24:24" VerticalAlignment="Top" TextAlignment="Center" FontWeight="Bold" FontSize="24" Foreground="#FF0031FF"/>
-            <DataGrid x:Name="grpProdDataGrid" Height="417" Margin="0,79,9,0" VerticalAlignment="Top" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="grpProdDataGrid_SelectionChanged">
+            <DataGrid x:Name="grpProdDataGrid" Margin="10,78,10
+                      ,54" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="grpProdDataGrid_SelectionChanged">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
                     <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Выберите группу блюд" IsReadOnly="True" Width="*"/>
@@ -32,6 +33,7 @@
         <DataGrid x:Name="asortDataGrid" Grid.Column="1" Margin="10,10,10,10.4" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="asortDataGrid_SelectionChanged" >
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding AsortCode}" Header="ID" Visibility="Hidden"/>
                 <DataGridTextColumn Binding="{Binding VimirNo}" Header="ID" Visibility="Hidden"/>
                 <DataGridTextColumn Binding="{Binding Price}" Header="ID" Visibility="Hidden"/>
                 <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Выберите блюдо" IsReadOnly="True" Width="*"/>

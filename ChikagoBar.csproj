@@ -50,6 +50,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>chicago_pizza_icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -81,6 +84,9 @@
       <DependentUpon>InputBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="OrderClass.cs" />
+    <Compile Include="PaymentWindow.xaml.cs">
+      <DependentUpon>PaymentWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ProductClass.cs" />
     <Compile Include="ReturnWindow.xaml.cs">
       <DependentUpon>ReturnWindow.xaml</DependentUpon>
@@ -109,6 +115,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="OrderWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PaymentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -142,6 +152,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="database\bar.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -166,6 +177,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\main_bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="chicago_pizza_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\chicago_pizza_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\chicago_pizza_icon.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net40\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net40\Stub.System.Data.SQLite.Core.NetFramework.targets')" />

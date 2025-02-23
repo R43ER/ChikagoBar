@@ -1,0 +1,21 @@
+﻿<Window x:Class="ChikagoBar.PaymentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Пиццерия 'Chikago' - Оплата" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial"
+        WindowStyle="SingleBorderWindow" ResizeMode="NoResize" Background="#F5DEB3" Icon="Images/chicago_pizza_icon.bmp" Height="276.8" Width="300" >
+    <Grid Margin="0,0,-0.4,1.2">
+        <TextBlock x:Name="orderNumText" Foreground="Red" Margin="10,10,9.6,0" Height="35" FontSize="24" Text="Заказ №1" VerticalAlignment="Top" FontFamily="Arial" TextAlignment="Center"/>
+        <Separator Height="15" Margin="10,45,9.6,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,65,0,0" TextWrapping="Wrap" Text="К оплате" VerticalAlignment="Top" FontSize="16" Height="20" Width="120" Foreground="#FF0031FF"/>
+        <TextBlock x:Name="needPaySummText" HorizontalAlignment="Right" Margin="0,65,9.6,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontSize="16" Height="20" Width="120" TextAlignment="Right" Foreground="#FF0031FF"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,90,0,0" TextWrapping="Wrap" Text="Получено" VerticalAlignment="Top" Height="20" Width="120" FontSize="16"/>
+        <TextBox x:Name="receivedSummInput" HorizontalAlignment="Right" Height="20" Margin="0,90,9.6,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" FontSize="16" TextAlignment="Right" Background="Transparent" TextChanged="txtReceived_TextChanged"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,115,0,0" TextWrapping="Wrap" Text="Сдача" VerticalAlignment="Top" Width="120" Height="20" FontSize="16" Foreground="#FF990000"/>
+        <TextBlock x:Name="changeSummText" HorizontalAlignment="Right" Margin="0,115,9.6,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Height="20" Width="120" FontSize="16" TextAlignment="Right" Foreground="#FF990000"/>
+        <Separator Height="15" Margin="10,140,9.6,0" VerticalAlignment="Top"/>
+        <Rectangle x:Name="payAllSumRectangle" Fill="#00F4F4F5" Height="35" Margin="10,155,10,0" Stroke="#33000000" VerticalAlignment="Top" MouseLeftButtonDown="payAllSumRectangle_MouseLeftButtonDown"/>
+        <Separator Height="15" Margin="10,195,10,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,215,0,0" TextWrapping="Wrap" Text="Скидка" VerticalAlignment="Top" Height="20" Width="120" FontSize="16"/>
+        <TextBlock x:Name="discountSumm" HorizontalAlignment="Left" Margin="164,215,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Height="20" Width="120" FontSize="16" TextAlignment="Right"/>
+    </Grid>
+</Window>

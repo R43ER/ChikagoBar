@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Input;
 
 namespace ChikagoBar
 {
@@ -12,7 +13,22 @@ namespace ChikagoBar
             InitializeComponent();
             this.Title = title;
             lblMessage.Text = message;
+            this.PreviewKeyDown += InputBox_PreviewKeyDown;
         }
+
+        private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                this.DialogResult = false;
+            }
+            else if (e.Key == Key.Enter)
+            {
+                InputText = txtInput.Text;
+                this.DialogResult = true;
+            }
+        }
+
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);

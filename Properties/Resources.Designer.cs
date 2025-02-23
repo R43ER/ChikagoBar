@@ -59,14 +59,5 @@ namespace ChikagoBar.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на 1.
-        /// </summary>
-        internal static string curOrderNo {
-            get {
-                return ResourceManager.GetString("curOrderNo", resourceCulture);
-            }
-        }
     }
 }

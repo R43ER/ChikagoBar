@@ -64,7 +64,7 @@ namespace ChicagoBar
         private void BtnOrder_Click(object sender, RoutedEventArgs e)
         {
             LogAction("Кнопка Заказ нажата");
-            MessageBoxResult discountResult = MessageBox.Show("Есть дисконтная карта?", "Скидка", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            MessageBoxResult discountResult = MessageBox.Show("Есть дисконтная карта?", "Скидка", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
             bool discount = false;
             string discountCard = null;
 
@@ -73,11 +73,11 @@ namespace ChicagoBar
                 InputBox inputBox = new InputBox("Введите номер карты", "Скидка");
                 if (inputBox.ShowDialog() == true)
                 {
-                    if (inputBox.InputText == "12345")
+                    if (inputBox.InputText == "123")
                     {
                         MessageBox.Show("Будет предоставлена скидка", "Скидка", MessageBoxButton.OK, MessageBoxImage.Information);
                         discount = true;
-                        discountCard = "12345";
+                        discountCard = inputBox.InputText;
                         LogAction("Скидка применена");
                     }
                     else

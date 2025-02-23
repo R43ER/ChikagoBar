@@ -15,6 +15,7 @@ namespace ChikagoBar
     {
         private DispatcherTimer timer;
         private readonly string logFilePath;
+        private int orderNum;
         public ICommand ExitCommand { get; }
         List<GrpProdItem> grpProdList = new List<GrpProdItem>();
         List<AsortItem> asortList = new List<AsortItem>();
@@ -23,18 +24,25 @@ namespace ChikagoBar
 
         private bool discount;
         private string discountCard;
+        private int discountVolume = 0;
+        private float totalDiscountSumm = 0;
 
         public OrderWindow(bool discount, string discountCard)
         {
             InitializeComponent();
             this.discount = discount;
             this.discountCard = discountCard;
+            if (discount)
+            {
+                this.discountVolume = 10;
+            }
             string logsDirectory = "logs";
             if (!Directory.Exists(logsDirectory))
                 Directory.CreateDirectory(logsDirectory);
             logFilePath = Path.Combine(logsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
             ExitCommand = new RelayCommand(_ => btnExit_Click(this, null));
-            curOrderNo.Text = Properties.Resources.curOrderNo;
+            orderNum = Properties.Settings.Default.curOrderNo;
+            curOrderNo.Text = orderNum.ToString();
             SetDateTime();
             StartClock();
             LoadData();
@@ -149,6 +157,7 @@ namespace ChikagoBar
                         tempList.Add(new AsortItem
                         {
                             ID = reader.GetInt32(0),
+                            AsortCode = reader.GetString(1),
                             Name = reader.GetString(3),
                             VimirNo = reader.GetInt32(4),
                             Price = reader.GetFloat(5)
@@ -198,17 +207,18 @@ namespace ChikagoBar
                     AsortItem asortItem = new AsortItem
                     {
                         ID = selectedItem.ID,
+                        AsortCode = selectedItem.AsortCode,
                         Name = selectedItem.Name,
                         Price = selectedItem.Price,
                         VimirNo = selectedItem.VimirNo,
                         Vimir = measurementUnit.Name
                     };
 
-                    string inputText = manualQuantityInput.Text.Trim(); // Убираем пробелы
+                    string inputText = manualQuantityInput.Text.Trim();
 
                     // 🟢 Попытка парсинга из поля ввода
                     bool isInputValid = float.TryParse(
-                        inputText.Replace(',', '.'),  // Заменяем `,` на `.` (универсальный формат)
+                        inputText.Replace(',', '.'),
                         NumberStyles.Float,
                         CultureInfo.InvariantCulture,
                         out quantity);
@@ -218,31 +228,40 @@ namespace ChikagoBar
                     {
                         string radioValue = GetSelectedRadioButtonValue();
                         float.TryParse(
-                            radioValue.Replace(',', '.'),  // Аналогично обрабатываем `.`
+                            radioValue.Replace(',', '.'),
                             NumberStyles.Float,
                             CultureInfo.InvariantCulture,
                             out quantity);
                     }
 
-                    // Обновляем количество и сумму
+                    // Обновляем количество
                     asortItem.Quant = quantity;
                     asortItem.Summ = asortItem.Price * asortItem.Quant;
 
-                    // Добавляем в корзину
+                    // 🟢 Рассчитываем скидку
+                    float discountAmount = 0;
+                    if (discount) // Если скидка активна
+                    {
+                        discountAmount = (asortItem.Summ * discountVolume) / 100; // Считаем сумму скидки
+                        totalDiscountSumm += discountAmount; // Обновляем общую сумму скидки
+                        asortItem.Summ -= discountAmount; // Применяем скидку к товару
+                    }
+
+                    // Добавляем товар в корзину
                     basketList.Add(asortItem);
 
                     // Пересчёт общей суммы корзины
-                    float totalBasketSum = basketList.Sum(item => item.Summ);
+                    RecalcBasketSum();
 
                     // Обновляем UI
                     basketDataGrid.ItemsSource = null;
                     basketDataGrid.ItemsSource = basketList;
-                    basketSumm.Text = totalBasketSum.ToString("F2");
 
-                    LogAction($"Добавлен товар в корзину: ID={asortItem.ID}, '{asortItem.Name}', кол-во={asortItem.Quant}, сумма={asortItem.Summ:F2}");
+                    LogAction($"Добавлен товар в корзину: ID={asortItem.ID}, '{asortItem.Name}', кол-во={asortItem.Quant}, сумма={asortItem.Summ:F2}, скидка={discountAmount:F2}");
                 }
             }
         }
+
 
 
 
@@ -252,41 +271,84 @@ namespace ChikagoBar
             if (basketDataGrid.SelectedItem is AsortItem selectedItem)
             {
                 LogAction($"Запрошено удаление товара из корзины: ID={selectedItem.ID}, '{selectedItem.Name}'");
+
+                // 🟢 Вычитаем скидку этого товара из общей суммы скидки
+                float discountAmount = (selectedItem.Price * selectedItem.Quant * discountVolume) / 100;
+                totalDiscountSumm -= discountAmount;
+
                 basketList.Remove(selectedItem);
                 RecalcBasketSum();
+
+                // Обновляем UI
                 basketDataGrid.ItemsSource = null;
                 basketDataGrid.ItemsSource = basketList;
+
                 if (basketList.Count > 0)
                 {
-                    if (oldIndex >= basketList.Count)
-                    {
-                        basketDataGrid.SelectedIndex = basketList.Count - 1;
-                    }
-                    else
-                    {
-                        basketDataGrid.SelectedIndex = oldIndex;
-                    }
+                    basketDataGrid.SelectedIndex = oldIndex >= basketList.Count ? basketList.Count - 1 : oldIndex;
                 }
-                LogAction($"Товар удалён из корзины: ID={selectedItem.ID}, '{selectedItem.Name}'");
+
+                LogAction($"Товар удалён из корзины: ID={selectedItem.ID}, '{selectedItem.Name}', удалённая скидка={discountAmount:F2}");
             }
         }
+
 
         private void btnPayForBasket_Click(object sender, RoutedEventArgs e)
         {
             LogAction("Запрошена оплата корзины.");
+
             if (basketList.Count == 0)
             {
                 LogAction("Попытка оплатить пустую корзину. Действие отменено.");
                 MessageBox.Show("Корзина пуста. Добавьте товары перед оплатой.");
                 return;
             }
-            LogAction($"Корзина содержит {basketList.Count} позиций. Сумма к оплате: {basketSumm.Text}");
-            MessageBox.Show($"Оплата прошла успешно! Итоговая сумма: {basketSumm.Text} руб.", "Оплата", MessageBoxButton.OK, MessageBoxImage.Information);
-            basketList.Clear();
-            basketDataGrid.ItemsSource = null;
-            basketSumm.Text = "0.00";
-            LogAction("Корзина очищена после оплаты (заглушка логики).");
+
+            decimal totalAmount = decimal.Parse(basketSumm.Text);
+            LogAction($"Корзина содержит {basketList.Count} позиций. Сумма к оплате: {totalAmount}");
+
+            PaymentWindow paymentWindow = new PaymentWindow(totalAmount, orderNum, totalDiscountSumm);
+
+            if (paymentWindow.ShowDialog() == true)
+            {
+                decimal paidAmount = paymentWindow.ReceivedAmount;
+                MessageBox.Show($"Оплата прошла успешно!\nИтоговая сумма: {totalAmount} руб.\nОплачено: {paidAmount} руб.", "Оплата", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                DatabaseHelper.BeginTransaction(DatabaseType.Bar);
+                foreach (AsortItem item in basketList)
+                {
+                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO Zakaz (Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
+                        new SQLiteParameter("@Date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                        new SQLiteParameter("@ZakazNo", orderNum),
+                        new SQLiteParameter("@AsortNo", item.ID),
+                        new SQLiteParameter("@AsortCode", item.AsortCode),
+                        new SQLiteParameter("@Quantity", item.Quant),
+                        new SQLiteParameter("@Amount", item.Summ),
+                        new SQLiteParameter("@CashNo", 1),
+                        new SQLiteParameter("@OperNo", 1),
+                        new SQLiteParameter("@Release", 1),
+                        new SQLiteParameter("@PrintCheck", false),
+                        new SQLiteParameter("@Discount", discount),
+                        new SQLiteParameter("@DiscountType", discountVolume),
+                        new SQLiteParameter("@CardNo", discountCard));
+                }
+                DatabaseHelper.CommitTransaction();
+
+                orderNum++;
+                Properties.Settings.Default.curOrderNo = orderNum; // Присваиваем новое значение
+                Properties.Settings.Default.Save();
+
+                basketList.Clear();
+                basketDataGrid.ItemsSource = null;
+                basketSumm.Text = "0.00";
+                LogAction($"Корзина очищена после оплаты. Оплачено: {paidAmount} руб.");
+            }
+            else
+            {
+                LogAction("Оплата отменена пользователем.");
+            }
         }
+
 
         private void RecalcBasketSum()
         {
@@ -316,6 +378,7 @@ namespace ChikagoBar
     public class AsortItem
     {
         public int ID { get; set; }
+        public string AsortCode { get; set; }
         public string Name { get; set; }
         public int VimirNo { get; set; }
         public string Vimir { get; set; }
