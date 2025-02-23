@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Windows;
 
 public static class DatabaseHelper
 {
+    private static readonly string LogsDirectory = "logs";
+    private static readonly string LogFilePath = Path.Combine(LogsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
+
+    static DatabaseHelper()
+    {
+        if (!Directory.Exists(LogsDirectory))
+            Directory.CreateDirectory(LogsDirectory);
+    }
+
     private static readonly Dictionary<DatabaseType, string> DatabaseFiles = new Dictionary<DatabaseType, string>
     {
         { DatabaseType.Data, "database/data.db" },
@@ -16,11 +26,16 @@ public static class DatabaseHelper
     private static SQLiteConnection _transactionConnection = null;
     private static SQLiteTransaction _transaction = null;
 
-    /// <summary>
-    /// Выполняет SQL-команду, не возвращающую результат (INSERT, UPDATE, DELETE).
-    /// </summary>
+    private static void Log(string message)
+    {
+        string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
+        File.AppendAllText(LogFilePath, logEntry + Environment.NewLine);
+    }
+
     public static void ExecuteNonQuery(DatabaseType dbType, string sql, params SQLiteParameter[] parameters)
     {
+        Log($"ExecuteNonQuery - SQL: {sql}");
+
         if (_transactionConnection != null)
         {
             ExecuteWithinTransaction(sql, parameters);
@@ -39,21 +54,22 @@ public static class DatabaseHelper
                 {
                     if (parameters != null)
                         command.Parameters.AddRange(parameters);
-                    command.ExecuteNonQuery();
+                    int affectedRows = command.ExecuteNonQuery();
+                    Log($"ExecuteNonQuery - {affectedRows} rows affected.");
                 }
             }
         }
         catch (Exception ex)
         {
+            Log($"Ошибка выполнения SQL-команды: {ex.Message}");
             MessageBox.Show($"Ошибка выполнения SQL-команды: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
-    /// <summary>
-    /// Выполняет SQL-запрос и обрабатывает результаты через переданный метод.
-    /// </summary>
     public static void ExecuteQuery(DatabaseType dbType, string sql, Action<SQLiteDataReader> processRow, params SQLiteParameter[] parameters)
     {
+        Log($"ExecuteQuery - SQL: {sql}");
+
         string databasePath = GetDatabasePath(dbType);
         if (databasePath == null) return;
 
@@ -69,25 +85,61 @@ public static class DatabaseHelper
 
                     using (var reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
-                            processRow(reader);
-                        }
+                        processRow(reader); // Просто передаем reader в вызванный метод
                     }
                 }
             }
         }
         catch (Exception ex)
         {
+            Log($"Ошибка выполнения SQL-запроса: {ex.Message}");
             MessageBox.Show($"Ошибка выполнения SQL-запроса: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
-    /// <summary>
-    /// Открывает транзакцию для указанной базы данных.
-    /// </summary>
+
+
+    public static DataTable ExecuteQueryToDataTable(DatabaseType dbType, string sql, params SQLiteParameter[] parameters)
+    {
+        Log($"ExecuteQueryToDataTable - SQL: {sql}");
+
+        string databasePath = GetDatabasePath(dbType);
+        if (databasePath == null)
+            return null;
+
+        DataTable dt = new DataTable();
+
+        try
+        {
+            using (var connection = new SQLiteConnection($"Data Source={databasePath};Version=3;"))
+            {
+                connection.Open();
+                using (var command = new SQLiteCommand(sql, connection))
+                {
+                    if (parameters != null)
+                        command.Parameters.AddRange(parameters);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        dt.Load(reader);
+                        Log($"ExecuteQueryToDataTable - Rows loaded: {dt.Rows.Count}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"Ошибка выполнения SQL-запроса: {ex.Message}");
+            MessageBox.Show($"Ошибка выполнения SQL-запроса: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        return dt;
+    }
+
     public static void BeginTransaction(DatabaseType dbType)
     {
+        Log("BeginTransaction");
+
         if (_transactionConnection != null)
         {
             MessageBox.Show("Транзакция уже открыта!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -105,15 +157,14 @@ public static class DatabaseHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Ошибка при открытии транзакции: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log($"Ошибка при открытии транзакции: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Завершает транзакцию (COMMIT).
-    /// </summary>
     public static void CommitTransaction()
     {
+        Log("CommitTransaction");
+
         if (_transaction == null)
         {
             MessageBox.Show("Нет активной транзакции для завершения!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -126,7 +177,7 @@ public static class DatabaseHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Ошибка при завершении транзакции: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log($"Ошибка при завершении транзакции: {ex.Message}");
         }
         finally
         {
@@ -134,11 +185,10 @@ public static class DatabaseHelper
         }
     }
 
-    /// <summary>
-    /// Откатывает транзакцию (ROLLBACK).
-    /// </summary>
     public static void RollbackTransaction()
     {
+        Log("RollbackTransaction");
+
         if (_transaction == null)
         {
             MessageBox.Show("Нет активной транзакции для отката!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -151,7 +201,7 @@ public static class DatabaseHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Ошибка при откате транзакции: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log($"Ошибка при откате транзакции: {ex.Message}");
         }
         finally
         {
@@ -159,31 +209,30 @@ public static class DatabaseHelper
         }
     }
 
-    /// <summary>
-    /// Выполняет SQL-команду внутри активной транзакции.
-    /// </summary>
     private static void ExecuteWithinTransaction(string sql, SQLiteParameter[] parameters)
     {
+        Log($"ExecuteWithinTransaction - SQL: {sql}");
+
         try
         {
             using (var command = new SQLiteCommand(sql, _transactionConnection, _transaction))
             {
                 if (parameters != null)
                     command.Parameters.AddRange(parameters);
-                command.ExecuteNonQuery();
+                int affectedRows = command.ExecuteNonQuery();
+                Log($"ExecuteWithinTransaction - {affectedRows} rows affected.");
             }
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Ошибка выполнения SQL-команды в транзакции: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log($"Ошибка выполнения SQL-команды в транзакции: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Закрывает текущее соединение с БД после завершения транзакции.
-    /// </summary>
     private static void CloseTransaction()
     {
+        Log("CloseTransaction");
+
         try
         {
             _transaction.Dispose();
@@ -194,27 +243,21 @@ public static class DatabaseHelper
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Ошибка при закрытии транзакции: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log($"Ошибка при закрытии транзакции: {ex.Message}");
         }
     }
 
-    /// <summary>
-    /// Возвращает путь к базе данных по переданному типу.
-    /// </summary>
     private static string GetDatabasePath(DatabaseType dbType)
     {
         if (!DatabaseFiles.TryGetValue(dbType, out string databasePath) || !File.Exists(databasePath))
         {
-            MessageBox.Show($"Файл базы данных {databasePath} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log($"Файл базы данных {databasePath} не найден.");
             return null;
         }
         return databasePath;
     }
 }
 
-/// <summary>
-/// Доступные базы данных.
-/// </summary>
 public enum DatabaseType
 {
     Data,
