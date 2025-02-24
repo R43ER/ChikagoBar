@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ChicagoBar;
 
 namespace ChikagoBar
 {
@@ -314,11 +315,20 @@ namespace ChikagoBar
                 decimal paidAmount = paymentWindow.ReceivedAmount;
                 MessageBox.Show($"Оплата прошла успешно!\nИтоговая сумма: {totalAmount} руб.\nОплачено: {paidAmount} руб.", "Оплата", MessageBoxButton.OK, MessageBoxImage.Information);
 
+                var zakazDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                long OrderId = DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO Zakaz (Date, ZakazNo, Total, Payd, DiscountSumm) VALUES (@Date, @ZakazNo, @Total, @Payd, @DiscountSumm)",
+                    new SQLiteParameter("@Date", zakazDate),
+                    new SQLiteParameter("@ZakazNo", orderNum),
+                    new SQLiteParameter("@Total", totalAmount),
+                    new SQLiteParameter("@Payd", paidAmount),
+                    new SQLiteParameter("@DiscountSumm", totalDiscountSumm));
+
                 DatabaseHelper.BeginTransaction(DatabaseType.Bar);
                 foreach (AsortItem item in basketList)
                 {
-                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO Zakaz (Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
-                        new SQLiteParameter("@Date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO ZakazD (ZakazID, Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@ZakazID, @Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
+                        new SQLiteParameter("@ZakazID", OrderId),
+                        new SQLiteParameter("@Date", zakazDate),
                         new SQLiteParameter("@ZakazNo", orderNum),
                         new SQLiteParameter("@AsortNo", item.ID),
                         new SQLiteParameter("@AsortCode", item.AsortCode),
@@ -367,30 +377,5 @@ namespace ChikagoBar
                 }
             }
         }
-    }
-
-    public class GrpProdItem
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-    }
-
-    public class AsortItem
-    {
-        public int ID { get; set; }
-        public string AsortCode { get; set; }
-        public string Name { get; set; }
-        public int VimirNo { get; set; }
-        public string Vimir { get; set; }
-        public float Price { get; set; }
-        public float Quant { get; set; }
-        public float Summ { get; set; }
-    }
-
-    public class VimirItem
-    {
-        public int VimirNo { get; set; }
-        public string Name { get; set; }
-        public bool NotFractal { get; set; }
     }
 }

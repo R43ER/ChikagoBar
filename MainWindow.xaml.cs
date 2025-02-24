@@ -212,4 +212,36 @@ namespace ChicagoBar
             public event EventHandler CanExecuteChanged;
         }
     }
+
+    public class ZakazItem
+    {
+        public int ZakazID { get; set; }
+        public string ZakazNo { get; set; }
+        public string Date { get; set; }
+    }
+
+    public class GrpProdItem
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class AsortItem
+    {
+        public int ID { get; set; }
+        public string AsortCode { get; set; }
+        public string Name { get; set; }
+        public int VimirNo { get; set; }
+        public string Vimir { get; set; }
+        public float Price { get; set; }
+        public float Quant { get; set; }
+        public float Summ { get; set; }
+    }
+
+    public class VimirItem
+    {
+        public int VimirNo { get; set; }
+        public string Name { get; set; }
+        public bool NotFractal { get; set; }
+    }
 }

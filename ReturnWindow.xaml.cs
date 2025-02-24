@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ChicagoBar;
 
 namespace ChikagoBar
 {
@@ -303,10 +304,19 @@ namespace ChikagoBar
             MessageBoxResult result = MessageBox.Show("Оформить возврат?", "Возврат", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
+                var zakazDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                var Payd = 0.00;
+                long OrderId = DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO Zakaz (Date, ZakazNo, Total, Payd, DiscountSumm) VALUES (@Date, @ZakazNo, @Total, @Payd, @DiscountSumm)",
+                    new SQLiteParameter("@Date", zakazDate),
+                    new SQLiteParameter("@ZakazNo", null),
+                    new SQLiteParameter("@Total", totalAmount),
+                    new SQLiteParameter("@Payd", Payd),
+                    new SQLiteParameter("@DiscountSumm", totalDiscountSumm));
                 DatabaseHelper.BeginTransaction(DatabaseType.Bar);
                 foreach (AsortItem item in basketList)
                 {
-                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO Zakaz (Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
+                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO ZakazD (ZakazID, Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@ZakazID, @Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
+                        new SQLiteParameter("@ZakazID", OrderId),
                         new SQLiteParameter("@Date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                         new SQLiteParameter("@ZakazNo", null),
                         new SQLiteParameter("@AsortNo", item.ID),

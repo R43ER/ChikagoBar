@@ -32,18 +32,17 @@ public static class DatabaseHelper
         File.AppendAllText(LogFilePath, logEntry + Environment.NewLine);
     }
 
-    public static void ExecuteNonQuery(DatabaseType dbType, string sql, params SQLiteParameter[] parameters)
+    public static long ExecuteNonQuery(DatabaseType dbType, string sql, params SQLiteParameter[] parameters)
     {
         Log($"ExecuteNonQuery - SQL: {sql}");
 
         if (_transactionConnection != null)
         {
-            ExecuteWithinTransaction(sql, parameters);
-            return;
+            return ExecuteWithinTransaction(sql, parameters);
         }
 
         string databasePath = GetDatabasePath(dbType);
-        if (databasePath == null) return;
+        if (databasePath == null) return -1; // Возвращаем -1 при ошибке
 
         try
         {
@@ -54,8 +53,15 @@ public static class DatabaseHelper
                 {
                     if (parameters != null)
                         command.Parameters.AddRange(parameters);
+
                     int affectedRows = command.ExecuteNonQuery();
                     Log($"ExecuteNonQuery - {affectedRows} rows affected.");
+
+                    // Получаем последний вставленный ID
+                    long lastInsertedId = connection.LastInsertRowId;
+                    Log($"Last Inserted ID: {lastInsertedId}");
+
+                    return lastInsertedId;
                 }
             }
         }
@@ -63,8 +69,10 @@ public static class DatabaseHelper
         {
             Log($"Ошибка выполнения SQL-команды: {ex.Message}");
             MessageBox.Show($"Ошибка выполнения SQL-команды: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            return -1; // Ошибка - возвращаем -1
         }
     }
+
 
     public static void ExecuteQuery(DatabaseType dbType, string sql, Action<SQLiteDataReader> processRow, params SQLiteParameter[] parameters)
     {
@@ -209,7 +217,7 @@ public static class DatabaseHelper
         }
     }
 
-    private static void ExecuteWithinTransaction(string sql, SQLiteParameter[] parameters)
+    private static long ExecuteWithinTransaction(string sql, SQLiteParameter[] parameters)
     {
         Log($"ExecuteWithinTransaction - SQL: {sql}");
 
@@ -219,15 +227,24 @@ public static class DatabaseHelper
             {
                 if (parameters != null)
                     command.Parameters.AddRange(parameters);
+
                 int affectedRows = command.ExecuteNonQuery();
                 Log($"ExecuteWithinTransaction - {affectedRows} rows affected.");
+
+                // Получаем последний вставленный ID
+                long lastInsertedId = _transactionConnection.LastInsertRowId;
+                Log($"Last Inserted ID in Transaction: {lastInsertedId}");
+
+                return lastInsertedId;
             }
         }
         catch (Exception ex)
         {
             Log($"Ошибка выполнения SQL-команды в транзакции: {ex.Message}");
+            return -1;
         }
     }
+
 
     private static void CloseTransaction()
     {

@@ -22,8 +22,7 @@
             <TextBlock x:Name="curDate" Margin="11,0,9,0" TextWrapping="Wrap" Text="22 февраля 2025 г." VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
             <TextBlock x:Name="curDay" Margin="10,23,9,0" TextWrapping="Wrap" Text="суббота" VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
             <TextBlock x:Name="curTime" Margin="10,46,8,0" TextWrapping="Wrap" Text="14:24:24" VerticalAlignment="Top" TextAlignment="Center" FontWeight="Bold" FontSize="24" Foreground="#FF0031FF"/>
-            <DataGrid x:Name="grpProdDataGrid" Margin="10,78,10
-                      ,54" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="grpProdDataGrid_SelectionChanged">
+            <DataGrid x:Name="grpProdDataGrid" Margin="10,78,10,54" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="grpProdDataGrid_SelectionChanged">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
                     <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Выберите группу блюд" IsReadOnly="True" Width="*"/>
