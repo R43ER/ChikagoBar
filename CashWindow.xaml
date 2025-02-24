@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ChikagoBar"
         mc:Ignorable="d"
         Title="Пиццерия 'Chikago' - Каса" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial" Height="600" Width="1200"
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/logo_check.bmp">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/chicago_pizza_icon.bmp">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
