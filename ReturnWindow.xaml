@@ -5,8 +5,71 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChikagoBar"
         mc:Ignorable="d"
-        Title="ReturnWindow" Height="450" Width="800">
+        Title="Пиццерия 'Chikago' - Возврат" WindowStartupLocation="CenterScreen" FontSize="14" FontFamily="Arial" Height="600" Width="1200"
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResize" Background="#F5DEB3" Icon="Images/chicago_pizza_icon.bmp">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <!-- 30% -->
+            <ColumnDefinition Width="3*"/>
+            <!-- 30% -->
+            <ColumnDefinition Width="4*"/>
+            <!-- 40% -->
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="10,10,9.6,10.4">
+            <Button x:Name="btnExit" Content="F10 Выход" Margin="10,0,10,0" Height="39" VerticalAlignment="Bottom" Click="btnExit_Click"/>
+            <TextBlock x:Name="curDate" Margin="11,0,9,0" TextWrapping="Wrap" Text="22 февраля 2025 г." VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
+            <TextBlock x:Name="curDay" Margin="10,23,9,0" TextWrapping="Wrap" Text="суббота" VerticalAlignment="Top" FontSize="16" TextAlignment="Center"/>
+            <TextBlock x:Name="curTime" Margin="10,46,8,0" TextWrapping="Wrap" Text="14:24:24" VerticalAlignment="Top" TextAlignment="Center" FontWeight="Bold" FontSize="24" Foreground="#FF0031FF"/>
+            <DataGrid x:Name="grpProdDataGrid" Margin="10,78,10
+                      ,54" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="grpProdDataGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Выберите группу блюд" IsReadOnly="True" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        <DataGrid x:Name="asortDataGrid" Grid.Column="1" Margin="10,10,10,10.4" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="asortDataGrid_SelectionChanged" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding AsortCode}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding VimirNo}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding Price}" Header="ID" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Выберите блюдо" IsReadOnly="True" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Column="2" Margin="10,10,9.6,10.4">
+            <DataGrid x:Name="basketDataGrid" Margin="10,125,10,62" CanUserAddRows="False" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding Name}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Блюдо" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Quant}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Кол-во" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Vimir}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Ед.изм." IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Price}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Цена" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Summ}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Сумма" IsReadOnly="True" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Button x:Name="btnAddToBasket" Content="Добавить в заказ" Margin="10,80,10,0" VerticalAlignment="Top" FontSize="18" Height="40" Click="btnAddToBasket_Click"/>
+            <GroupBox Header="Количество" HorizontalAlignment="Left" Height="49" Margin="10,26,0,0" VerticalAlignment="Top" Width="305">
+                <StackPanel x:Name="myStackPanel" Orientation="Horizontal" Margin="0,0,-2.4,-0.4">
+                    <RadioButton Content="1" FlowDirection="RightToLeft" Margin="10,6,10,6.8" GroupName="quantity" IsChecked="True"/>
+                    <RadioButton Content="2" FlowDirection="RightToLeft" Margin="10,6,10,6.8" GroupName="quantity"/>
+                    <RadioButton Content="3" FlowDirection="RightToLeft" Margin="10,6,10,6.8" GroupName="quantity"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,6,10,0" TextWrapping="Wrap" Text="Другое" VerticalAlignment="Top"/>
+                    <TextBox x:Name="manualQuantityInput" TextWrapping="Wrap" Text="" Width="82" Margin="0,0,0,0"/>
+                </StackPanel>
+            </GroupBox>
+            <Button x:Name="btnRemoveFromBasket" Content="Удалить" Margin="0,44,10,0" VerticalAlignment="Top" FontSize="18" HorizontalAlignment="Right" Width="91" Click="btnRemoveFromBasket_Click"/>
+            <TextBlock HorizontalAlignment="Left" Margin="10,0,0,10" TextWrapping="Wrap" Text="Возврат" VerticalAlignment="Bottom" FontSize="24" Foreground="#FF990000"/>
+            <Button x:Name="btnReturnForBasket" Content="Возврат" HorizontalAlignment="Left" Margin="135,0,0,10" Width="160" Height="28" VerticalAlignment="Bottom" Click="btnReturnForBasket_Click"/>
+            <TextBlock x:Name="basketSumm" Margin="300,0,0,9" TextWrapping="Wrap" Text="0" VerticalAlignment="Bottom" FontSize="42" TextAlignment="Right" Foreground="#FF990000" FontWeight="Bold"/>
+            <TextBlock x:Name="asortName" HorizontalAlignment="Left" Margin="10,5,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="259"/>
+            <TextBlock x:Name="vimirName" HorizontalAlignment="Left" Margin="274,6,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="66"/>
+            <TextBlock x:Name="priceText" HorizontalAlignment="Left" Margin="362,6,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="86" TextAlignment="Right"/>
+        </Grid>
     </Grid>
+    <Window.InputBindings>
+        <KeyBinding Key="F10" Command="{Binding ExitCommand}" />
+    </Window.InputBindings>
 </Window>

@@ -102,7 +102,30 @@ namespace ChicagoBar
         private void BtnReturn_Click(object sender, RoutedEventArgs e)
         {
             LogAction("Кнопка Возврат нажата");
-            ReturnWindow returnWindow = new ReturnWindow();
+            MessageBoxResult discountResult = MessageBox.Show("Есть дисконтная карта?", "Скидка", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            bool discount = false;
+            string discountCard = null;
+
+            if (discountResult == MessageBoxResult.Yes)
+            {
+                InputBox inputBox = new InputBox("Введите номер карты", "Скидка");
+                if (inputBox.ShowDialog() == true)
+                {
+                    if (inputBox.InputText == "123")
+                    {
+                        MessageBox.Show("Будет предоставлена скидка", "Скидка", MessageBoxButton.OK, MessageBoxImage.Information);
+                        discount = true;
+                        discountCard = inputBox.InputText;
+                        LogAction("Скидка применена");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Скидка не предоставляется", "Скидка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        LogAction("Скидка не применена");
+                    }
+                }
+            }
+            ReturnWindow returnWindow = new ReturnWindow(discount, discountCard);
             returnWindow.Show();
         }
 
