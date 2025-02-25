@@ -34,5 +34,17 @@ namespace ChikagoBar.Properties {
                 this["curOrderNo"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool openShift {
+            get {
+                return ((bool)(this["openShift"]));
+            }
+            set {
+                this["openShift"] = value;
+            }
+        }
     }
 }

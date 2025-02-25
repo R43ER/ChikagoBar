@@ -83,7 +83,6 @@
     <Compile Include="InputBox.xaml.cs">
       <DependentUpon>InputBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OrderClass.cs" />
     <Compile Include="PaymentWindow.xaml.cs">
       <DependentUpon>PaymentWindow.xaml</DependentUpon>
     </Compile>

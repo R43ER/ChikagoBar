@@ -233,7 +233,7 @@ namespace ChikagoBar
                     }
 
                     // Обновляем количество
-                    asortItem.Quant = quantity;
+                    asortItem.Quant = quantity - -1;
                     asortItem.Summ = asortItem.Price * asortItem.Quant * -1;
 
                     // 🟢 Рассчитываем скидку

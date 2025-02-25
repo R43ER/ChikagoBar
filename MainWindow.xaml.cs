@@ -1,5 +1,6 @@
 ﻿using ChikagoBar;
 using System;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -10,6 +11,8 @@ namespace ChicagoBar
     public partial class MainWindow : Window
     {
         private readonly string logFilePath;
+        private bool openShift;
+        public bool connectKKT;
         public ICommand ExitCommand { get; }
 
         public MainWindow()
@@ -31,7 +34,26 @@ namespace ChicagoBar
                 Directory.CreateDirectory(logsDirectory);
 
             logFilePath = Path.Combine(logsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
+
+            this.Loaded += MainWindow_Loaded;
         }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            openShift = ChikagoBar.Properties.Settings.Default.openShift;
+            if (!openShift)
+            {
+                MessageBoxResult shiftResult = MessageBox.Show("Смена закрыта. Хотите открыть?", "Смена", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
+                if (shiftResult == MessageBoxResult.Yes)
+                {
+                    var dateStart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "UPDATE Cash SET DateStart = @DateStart WHERE CashNo = 1", new SQLiteParameter("@DateStart", dateStart));
+                    ChikagoBar.Properties.Settings.Default.openShift = true;
+                    ChikagoBar.Properties.Settings.Default.Save();
+                }
+            }
+        }
+
         private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             switch (e.Key)
