@@ -6,7 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
-namespace ChicagoBar
+namespace ChikagoBar
 {
     public partial class MainWindow : Window
     {
@@ -54,23 +54,23 @@ namespace ChicagoBar
             }
         }
 
-        private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
-                case System.Windows.Input.Key.F2:
+                case Key.F2:
                     BtnOrder_Click(sender, e);
                     break;
-                case System.Windows.Input.Key.F3:
+                case Key.F3:
                     BtnView_Click(sender, e);
                     break;
-                case System.Windows.Input.Key.F4:
+                case Key.F4:
                     BtnReturn_Click(sender, e);
                     break;
-                case System.Windows.Input.Key.F5:
+                case Key.F5:
                     BtnCash_Click(sender, e);
                     break;
-                case System.Windows.Input.Key.F7:
+                case Key.F7:
                     BtnEndOfDay_Click(sender, e);
                     break;
             }

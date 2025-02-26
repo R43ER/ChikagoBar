@@ -4,7 +4,6 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using ChicagoBar;
 
 namespace ChikagoBar
 {
