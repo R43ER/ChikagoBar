@@ -33,7 +33,7 @@
         <DataGrid x:Name="zakazDataGrid" Grid.Column="1" Margin="9.6,10,9.8,10.4" CanUserAddRows="False" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" SelectionChanged="zakazDataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding ZakazID}" Header="ZakazID" Visibility="Hidden"/>
-                <DataGridTextColumn Binding="{Binding Date}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Дата" IsReadOnly="True" Width="7*"/>
+                <DataGridTextColumn Binding="{Binding FormattedDate}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Дата" IsReadOnly="True" Width="7*"/>
                 <DataGridTextColumn Binding="{Binding ZakazNo}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="№" IsReadOnly="True" Width="3*"/>
             </DataGrid.Columns>
         </DataGrid>

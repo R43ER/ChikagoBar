@@ -34,12 +34,11 @@
         <TextBlock x:Name="startCash" Grid.Column="1" HorizontalAlignment="Right" Margin="0,63,9.6,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontSize="36"/>
         <Separator Grid.Column="1" Height="15" Margin="10.4,109,9.6,0" VerticalAlignment="Top"/>
         <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,330,0,0" TextWrapping="Wrap" Text="Движение денег" Width="114" Height="26" VerticalAlignment="Top"/>
-        <DataGrid x:Name="cashDataGrid" Grid.Column="1" Margin="129.4,129,9.6,85.4">
+        <DataGrid x:Name="cashDataGrid" Grid.Column="1" Margin="129.4,129,9.6,85.4" CanUserAddRows="False" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" CanUserResizeColumns="False" SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Дата" IsReadOnly="True" Width="*"/>
-                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Время" IsReadOnly="True" Width="*"/>
-                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Вид операции" IsReadOnly="True" Width="*"/>
-                <DataGridTextColumn Binding="{x:Null}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Сумма" IsReadOnly="True" Width="*"/>
+                <DataGridTextColumn Binding="{Binding Date}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Дата" IsReadOnly="True" Width="*"/>
+                <DataGridTextColumn Binding="{Binding Type}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Вид операции" IsReadOnly="True" Width="*"/>
+                <DataGridTextColumn Binding="{Binding Amount}" CanUserSort="False" CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" FontSize="14" FontFamily="Arial" Header="Сумма" IsReadOnly="True" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
         <Separator Grid.Column="1" Margin="10.4,0,9.6,65.4" Height="15" VerticalAlignment="Bottom"/>

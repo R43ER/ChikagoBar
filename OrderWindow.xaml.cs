@@ -36,7 +36,7 @@ namespace ChikagoBar
             {
                 this.discountVolume = 10;
             }
-            string logsDirectory = "logs";
+            string logsDirectory = "Logs";
             if (!Directory.Exists(logsDirectory))
                 Directory.CreateDirectory(logsDirectory);
             logFilePath = Path.Combine(logsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
@@ -51,7 +51,7 @@ namespace ChikagoBar
         private void LoadData()
         {
             LogAction("Начало загрузки данных из БД.");
-            DatabaseHelper.ExecuteQuery(DatabaseType.Data, "SELECT * FROM Vimir", reader =>
+            DatabaseHelper.ExecuteQuery("SELECT * FROM Vimir", reader =>
             {
                 while (reader.Read())
                 {
@@ -65,7 +65,7 @@ namespace ChikagoBar
                 }
             });
             LogAction($"Загружено единиц измерения: {vimirList.Count}");
-            DatabaseHelper.ExecuteQuery(DatabaseType.Data, "SELECT * FROM GrpProd;", reader =>
+            DatabaseHelper.ExecuteQuery("SELECT * FROM GrpProd;", reader =>
             {
                 while (reader.Read())
                 {
@@ -149,7 +149,7 @@ namespace ChikagoBar
                 LogAction($"Выбрана группа товаров: ID={selectedItem.ID}, Наименование='{selectedItem.Name}'");
                 asortList.Clear();
                 asortDataGrid.ItemsSource = null;
-                DatabaseHelper.ExecuteQuery(DatabaseType.Data, $"SELECT * FROM Asort WHERE Actual = true AND G{selectedItem.ID} = true;", delegate (SQLiteDataReader reader)
+                DatabaseHelper.ExecuteQuery($"SELECT * FROM Asort WHERE Actual = true AND G{selectedItem.ID} = true;", delegate (SQLiteDataReader reader)
                 {
                     List<AsortItem> tempList = new List<AsortItem>();
                     while (reader.Read())
@@ -315,18 +315,10 @@ namespace ChikagoBar
                 MessageBox.Show($"Оплата прошла успешно!\nИтоговая сумма: {totalAmount} руб.\nОплачено: {paidAmount} руб.", "Оплата", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 var zakazDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                long OrderId = DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO Zakaz (Date, ZakazNo, Total, Payd, DiscountSumm) VALUES (@Date, @ZakazNo, @Total, @Payd, @DiscountSumm)",
-                    new SQLiteParameter("@Date", zakazDate),
-                    new SQLiteParameter("@ZakazNo", orderNum),
-                    new SQLiteParameter("@Total", totalAmount),
-                    new SQLiteParameter("@Payd", paidAmount),
-                    new SQLiteParameter("@DiscountSumm", totalDiscountSumm));
-
-                DatabaseHelper.BeginTransaction(DatabaseType.Bar);
+                DatabaseHelper.BeginTransaction();
                 foreach (AsortItem item in basketList)
                 {
-                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "INSERT INTO ZakazD (ZakazID, Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@ZakazID, @Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
-                        new SQLiteParameter("@ZakazID", OrderId),
+                    DatabaseHelper.ExecuteNonQuery("INSERT INTO Zakaz (Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
                         new SQLiteParameter("@Date", zakazDate),
                         new SQLiteParameter("@ZakazNo", orderNum),
                         new SQLiteParameter("@AsortNo", item.ID),
@@ -341,9 +333,16 @@ namespace ChikagoBar
                         new SQLiteParameter("@DiscountType", discountVolume),
                         new SQLiteParameter("@CardNo", discountCard));
                 }
+                DatabaseHelper.ExecuteNonQuery("UPDATE Cash SET Rest = Rest + @totalAmount, DateFinish = @DateFinish WHERE CashNo = 1;",
+                    new SQLiteParameter("@totalAmount", totalAmount),
+                    new SQLiteParameter("@DateFinish", zakazDate));
                 DatabaseHelper.CommitTransaction();
 
                 orderNum++;
+                if(orderNum > 30)
+                {
+                    orderNum = 1;
+                }
                 Properties.Settings.Default.curOrderNo = orderNum; // Присваиваем новое значение
                 Properties.Settings.Default.Save();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Windows;
@@ -9,6 +10,7 @@ namespace ChikagoBar
     public partial class CashWindow : Window
     {
         private readonly string logFilePath;
+        List<CashItem> cashList = new List<CashItem>();
         public ICommand ExitCommand { get; }
 
         public CashWindow()
@@ -19,18 +21,63 @@ namespace ChikagoBar
             ExitCommand = new RelayCommand(_ => btnExit_Click(this, null));
             this.DataContext = this;
 
-            string logsDirectory = "logs";
-            if (!Directory.Exists(logsDirectory))
-                Directory.CreateDirectory(logsDirectory);
-
-            logFilePath = Path.Combine(logsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
+            logFilePath = Path.Combine("Logs", $"log_{DateTime.Now:yyyy-MM-dd}.log");
 
             LogAction("Окно Кассы открыто");
-
-            ExecuteQuery("bar.db", "SELECT * FROM Cash WHERE CashNo = 1;", reader =>
+            DatabaseHelper.ExecuteQuery("SELECT * FROM Cash WHERE CashNo = 1;", reader =>
             {
-                startCash.Text = reader["Start"].ToString();
-                curCash.Text = reader["Rest"].ToString();
+                while (reader.Read())
+                {
+                    startCash.Text = reader.GetFloat(3).ToString("F2");
+                    curCash.Text = reader.GetFloat(5).ToString("F2");
+                    startTime.Text = reader.GetDateTime(2).ToString("dd.MM.yyyy HH:mm");
+                }
+            });
+            DatabaseHelper.ExecuteQuery("SELECT * FROM Zakaz WHERE AsortNo IN (-2,-1, -7) ORDER BY Date ASC;", reader =>
+            {
+                while (reader.Read())
+                {
+                    startCash.Text = reader.GetFloat(3).ToString("F2");
+                    curCash.Text = reader.GetFloat(5).ToString("F2");
+                    startTime.Text = reader.GetDateTime(2).ToString("dd.MM.yyyy HH:mm");
+                }
+            });
+            UpdateCashTable();
+        }
+
+        private void UpdateCashTable()
+        {
+            DatabaseHelper.ExecuteQuery("SELECT * FROM Zakaz WHERE AsortNo IN (-2,-1, -7) ORDER BY Date ASC;", reader =>
+            {
+                cashList.Clear();
+                cashDataGrid.ItemsSource = null;
+                List<CashItem> tempList = new List<CashItem>();
+                while (reader.Read())
+                {
+                    string typeOper = "";
+                    switch (reader.GetInt32(3))
+                    {
+                        case -7:
+                            typeOper = "Обнуление Z-отчет";
+                            break;
+                        case -2:
+                            typeOper = "Выдача наличных";
+                            break;
+                        case -1:
+                            typeOper = "Внесение наличных";
+                            break;
+                    }
+                    tempList.Add(new CashItem
+                    {
+                        Date = reader.GetDateTime(1).ToString("HH:mm dd.MM.yyyy"),
+                        Type = typeOper,
+                        Amount = reader.GetFloat(6).ToString("F2")
+                    });
+                }
+                cashList.Clear();
+                cashList.AddRange(tempList);
+                tempList.Clear();
+                cashDataGrid.ItemsSource = cashList;
             });
         }
 
@@ -61,11 +108,33 @@ namespace ChikagoBar
                 bool res = int.TryParse(summBox.InputText, out var addSumm);
                 if (res)
                 {
-                    ExecuteNonQuery("bar.db", "UPDATE Cash SET Rest = Rest + @add WHERE CashNo = 1", new SQLiteParameter("@add", addSumm));
-                    ExecuteQuery("bar.db", "SELECT * FROM Cash WHERE CashNo = 1;", reader =>
+                    var zakazDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    float Quantity = 0;
+                    DatabaseHelper.BeginTransaction();
+                    DatabaseHelper.ExecuteNonQuery("UPDATE Cash SET Rest = Rest + @add WHERE CashNo = 1;", new SQLiteParameter("@add", addSumm));
+                    DatabaseHelper.ExecuteNonQuery("INSERT INTO Zakaz (Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
+                        new SQLiteParameter("@Date", zakazDate),
+                        new SQLiteParameter("@ZakazNo", null),
+                        new SQLiteParameter("@AsortNo", -1),
+                        new SQLiteParameter("@AsortCode", -1),
+                        new SQLiteParameter("@Quantity", Quantity),
+                        new SQLiteParameter("@Amount", addSumm),
+                        new SQLiteParameter("@CashNo", 1),
+                        new SQLiteParameter("@OperNo", 1),
+                        new SQLiteParameter("@Release", false),
+                        new SQLiteParameter("@PrintCheck", false),
+                        new SQLiteParameter("@Discount", false),
+                        new SQLiteParameter("@DiscountType", false),
+                        new SQLiteParameter("@CardNo", null));
+                    DatabaseHelper.CommitTransaction();
+                    DatabaseHelper.ExecuteQuery("SELECT * FROM Cash WHERE CashNo = 1;", reader =>
                     {
-                        curCash.Text = reader["Rest"].ToString();
+                        while (reader.Read())
+                        {
+                            curCash.Text = reader.GetFloat(5).ToString("F2");
+                        }
                     });
+                    UpdateCashTable();
                     LogAction($"Добавлено {addSumm} в кассу");
                 }
             }
@@ -79,13 +148,36 @@ namespace ChikagoBar
                 bool res = int.TryParse(summBox.InputText, out var addSumm);
                 if (res)
                 {
-                    ExecuteNonQuery("bar.db", "UPDATE Cash SET Rest = Rest - @add WHERE CashNo = 1", new SQLiteParameter("@add", addSumm));
-                    ExecuteQuery("bar.db", "SELECT * FROM Cash WHERE CashNo = 1;", reader =>
-                    {
-                        curCash.Text = reader["Rest"].ToString();
-                    });
+                    var zakazDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    float Quantity = 0;
+                    DatabaseHelper.BeginTransaction();
+                    DatabaseHelper.ExecuteNonQuery("UPDATE Cash SET Rest = Rest - @add WHERE CashNo = 1;", new SQLiteParameter("@add", addSumm));
+                    addSumm = addSumm * -1;
+                    DatabaseHelper.ExecuteNonQuery("INSERT INTO Zakaz (Date, ZakazNo, AsortNo, AsortCode, Quantity, Amount, CashNo, OperNo, Release, PrintCheck, Discount, DiscountType, CardNo) VALUES (@Date, @ZakazNo, @AsortNo, @AsortCode, @Quantity, @Amount, @CashNo, @OperNo, @Release, @PrintCheck, @Discount, @DiscountType, @CardNo)",
+                        new SQLiteParameter("@Date", zakazDate),
+                        new SQLiteParameter("@ZakazNo", null),
+                        new SQLiteParameter("@AsortNo", -1),
+                        new SQLiteParameter("@AsortCode", -1),
+                        new SQLiteParameter("@Quantity", Quantity),
+                        new SQLiteParameter("@Amount", addSumm),
+                        new SQLiteParameter("@CashNo", 1),
+                        new SQLiteParameter("@OperNo", 1),
+                        new SQLiteParameter("@Release", false),
+                        new SQLiteParameter("@PrintCheck", false),
+                        new SQLiteParameter("@Discount", false),
+                        new SQLiteParameter("@DiscountType", false),
+                        new SQLiteParameter("@CardNo", null));
+                    DatabaseHelper.CommitTransaction();
                     LogAction($"Из кассы выдано {addSumm}");
                 }
+                DatabaseHelper.ExecuteQuery("SELECT * FROM Cash WHERE CashNo = 1;", reader =>
+                {
+                    while (reader.Read())
+                    {
+                        curCash.Text = reader.GetFloat(5).ToString("F2");
+                    }
+                });
+                UpdateCashTable();
             }
         }
 
@@ -111,56 +203,6 @@ namespace ChikagoBar
             File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
         }
 
-        private void ExecuteNonQuery(string databaseFileName, string sql, params SQLiteParameter[] parameters)
-        {
-            string databasePath = Path.Combine("database", databaseFileName);
-            if (!File.Exists(databasePath))
-            {
-                MessageBox.Show($"Файл базы данных {databaseFileName} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            using (var connection = new SQLiteConnection($"Data Source={databasePath};Version=3;"))
-            {
-                connection.Open();
-                using (var command = new SQLiteCommand(sql, connection))
-                {
-                    if (parameters != null)
-                        command.Parameters.AddRange(parameters);
-
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private void ExecuteQuery(string databaseFileName, string sql, Action<SQLiteDataReader> processRow, params SQLiteParameter[] parameters)
-        {
-            string databasePath = Path.Combine("database", databaseFileName);
-            if (!File.Exists(databasePath))
-            {
-                MessageBox.Show($"Файл базы данных {databaseFileName} не найден.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            using (var connection = new SQLiteConnection($"Data Source={databasePath};Version=3;"))
-            {
-                connection.Open();
-                using (var command = new SQLiteCommand(sql, connection))
-                {
-                    if (parameters != null)
-                        command.Parameters.AddRange(parameters);
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            processRow(reader);
-                        }
-                    }
-                }
-            }
-        }
-
         public class RelayCommand : ICommand
         {
             private readonly Action<object> execute;
@@ -178,5 +220,12 @@ namespace ChikagoBar
 
             public event EventHandler CanExecuteChanged;
         }
+    }
+
+    public class CashItem
+    {
+        public string Date { get; set; }
+        public string Type { get; set; }
+        public string Amount { get; set; }
     }
 }

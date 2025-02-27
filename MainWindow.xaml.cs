@@ -1,4 +1,4 @@
-﻿using ChikagoBar;
+﻿using Ionic.Zip;
 using System;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -10,7 +10,7 @@ namespace ChikagoBar
 {
     public partial class MainWindow : Window
     {
-        private readonly string logFilePath;
+        public string logFilePath;
         private bool openShift;
         public bool connectKKT;
         public ICommand ExitCommand { get; }
@@ -19,37 +19,49 @@ namespace ChikagoBar
         {
             InitializeComponent();
             ExitCommand = new RelayCommand(_ => BtnExit_Click(this, null));
-            this.DataContext = this;
-            this.KeyDown += MainWindow_KeyDown;
+            DataContext = this;
+            KeyDown += MainWindow_KeyDown;
             btnExit.Click += BtnExit_Click;
             btnEndOfDay.Click += BtnEndOfDay_Click;
             btnOrder.Click += BtnOrder_Click;
             btnView.Click += BtnView_Click;
             btnReturn.Click += BtnReturn_Click;
             btnCash.Click += BtnCash_Click;
-            this.Closing += MainWindow_Closing;
+            Closing += MainWindow_Closing;
+            Loaded += MainWindow_Loaded;
 
-            string logsDirectory = "logs";
+            CheckFolders();
+        }
+
+        private void CheckFolders()
+        {
+            string logsDirectory = "Logs";
             if (!Directory.Exists(logsDirectory))
                 Directory.CreateDirectory(logsDirectory);
-
             logFilePath = Path.Combine(logsDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.log");
+            string archiveDirectory = "Archive";
+            if (!Directory.Exists(archiveDirectory))
+                Directory.CreateDirectory(archiveDirectory);
+        }
 
-            this.Loaded += MainWindow_Loaded;
+        public void LogAction(string action)
+        {
+            string logEntry = $"{DateTime.Now:HH:mm:ss} - {action}";
+            File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            openShift = ChikagoBar.Properties.Settings.Default.openShift;
+            openShift = Properties.Settings.Default.openShift;
             if (!openShift)
             {
                 MessageBoxResult shiftResult = MessageBox.Show("Смена закрыта. Хотите открыть?", "Смена", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes);
                 if (shiftResult == MessageBoxResult.Yes)
                 {
                     var dateStart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    DatabaseHelper.ExecuteNonQuery(DatabaseType.Bar, "UPDATE Cash SET DateStart = @DateStart WHERE CashNo = 1", new SQLiteParameter("@DateStart", dateStart));
-                    ChikagoBar.Properties.Settings.Default.openShift = true;
-                    ChikagoBar.Properties.Settings.Default.Save();
+                    DatabaseHelper.ExecuteNonQuery("UPDATE Cash SET DateStart = @DateStart WHERE CashNo = 1", new SQLiteParameter("@DateStart", dateStart));
+                    Properties.Settings.Default.openShift = true;
+                    Properties.Settings.Default.Save();
                 }
             }
         }
@@ -74,13 +86,6 @@ namespace ChikagoBar
                     BtnEndOfDay_Click(sender, e);
                     break;
             }
-        }
-
-
-        private void LogAction(string action)
-        {
-            string logEntry = $"{DateTime.Now:HH:mm:ss} - {action}";
-            File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
         }
 
         private void BtnOrder_Click(object sender, RoutedEventArgs e)
@@ -176,7 +181,40 @@ namespace ChikagoBar
 
         private void BtnEndOfDay_Click(object sender, RoutedEventArgs e)
         {
-            LogAction("Конец дня");
+            MessageBoxResult endDayResult = MessageBox.Show("Вы точно хотите завершить день?", "Закрытие дня", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            if (endDayResult == MessageBoxResult.Yes)
+            {
+                LogAction("Конец дня");
+                string curTime = DateTime.Now.Ticks.ToString();
+                string archiveDirectory = "Archive";
+                string databaseDirectory = "Database";
+                string logsDirectory = "Logs";
+                string archivePath = Path.Combine(archiveDirectory, $"{curTime}.zip");
+                using (var zip = new ZipFile())
+                {
+                    AddFilesToZip(zip, databaseDirectory);
+                    AddFilesToZip(zip, logsDirectory);
+                    zip.Save(archivePath); // Сохраняем ZIP-файл
+                }
+                LogAction($"Архив создан: {archivePath}");
+                DatabaseHelper.ExecuteNonQuery("DELETE FROM Zakaz;");
+                Properties.Settings.Default.curOrderNo = 1;
+                Properties.Settings.Default.openShift = false;
+                Properties.Settings.Default.Save();
+                LogAction("День закрыт. Таблица очищена.");
+            }
+        }
+
+        static void AddFilesToZip(ZipFile zip, string sourceDirectory)
+        {
+            if (!Directory.Exists(sourceDirectory))
+                return; // Если папки нет, пропускаем
+
+            string[] files = Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories);
+            foreach (string file in files)
+            {
+                zip.AddFile(file).FileName = Path.GetFileName(file);
+            }
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -201,7 +239,7 @@ namespace ChikagoBar
             if (shutdownResult == MessageBoxResult.Yes)
             {
                 LogAction("Компьютер выключается");
-                ShutdownComputer();
+                //ShutdownComputer();
             }
             else
             {
@@ -239,7 +277,8 @@ namespace ChikagoBar
     {
         public int ZakazID { get; set; }
         public string ZakazNo { get; set; }
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
+        public string FormattedDate { get; set; }
     }
 
     public class GrpProdItem

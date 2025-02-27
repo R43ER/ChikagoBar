@@ -28,7 +28,7 @@ namespace ChikagoBar
         private void LoadOrders()
         {
 
-            DatabaseHelper.ExecuteQuery(DatabaseType.Data, "SELECT * FROM Asort", reader =>
+            DatabaseHelper.ExecuteQuery("SELECT * FROM Asort", reader =>
             {
                 while (reader.Read())
                 {
@@ -42,7 +42,7 @@ namespace ChikagoBar
                     });
                 }
             });
-            DatabaseHelper.ExecuteQuery(DatabaseType.Data, "SELECT * FROM Vimir", reader =>
+            DatabaseHelper.ExecuteQuery("SELECT * FROM Vimir", reader =>
             {
                 while (reader.Read())
                 {
@@ -55,7 +55,7 @@ namespace ChikagoBar
                     });
                 }
             });
-            DatabaseHelper.ExecuteQuery(DatabaseType.Bar, "SELECT * FROM Zakaz;", reader =>
+            DatabaseHelper.ExecuteQuery("SELECT Z.* FROM Zakaz Z JOIN(SELECT Date, MIN(ZakazID) AS MinZakazID FROM Zakaz GROUP BY Date) SubQ ON Z.Date = SubQ.Date AND Z.ZakazID = SubQ.MinZakazID;", reader =>
             {
                 while (reader.Read())
                 {
@@ -63,7 +63,8 @@ namespace ChikagoBar
                     {
                         ZakazID = reader.GetInt32(0),
                         ZakazNo = reader.GetValue(2).ToString(),
-                        Date = reader.GetDateTime(1).ToString("g")
+                        Date = reader.GetDateTime(1),
+                        FormattedDate = reader.GetDateTime(1).ToString("HH:mm dd.MM.yyyy")
                     }); ;
                 }
             });
@@ -76,21 +77,23 @@ namespace ChikagoBar
             {
                 basketList.Clear();
                 asortDataGrid.ItemsSource = null;
-                DatabaseHelper.ExecuteQuery(DatabaseType.Bar, $"SELECT * FROM ZakazD WHERE ZakazID = {selectedItem.ZakazID};", delegate (SQLiteDataReader reader)
+                var zakazDate = selectedItem.Date.ToString("yyyy-MM-dd HH:mm:ss");
+                Console.WriteLine(zakazDate);
+                DatabaseHelper.ExecuteQuery($"SELECT * FROM Zakaz WHERE Date = '{zakazDate}';", delegate (SQLiteDataReader reader)
                 {
                     float totalSumm = 0;
                     List<AsortItem> tempList = new List<AsortItem>();
                     while (reader.Read())
                     {
-                        AsortItem tempAsortItem = asortList.FirstOrDefault(v => v.ID == reader.GetInt32(4));
-                        totalSumm = totalSumm + reader.GetFloat(7);
+                        AsortItem tempAsortItem = asortList.FirstOrDefault(v => v.ID == reader.GetInt32(3));
+                        totalSumm = totalSumm + reader.GetFloat(6);
                         VimirItem vimir = vimirList.FirstOrDefault(v => v.VimirNo == tempAsortItem.VimirNo);
                         tempList.Add(new AsortItem
                         {
-                            ID = reader.GetInt32(4),
-                            AsortCode = reader.GetString(5),
-                            Quant = reader.GetFloat(6),
-                            Summ = reader.GetFloat(7),
+                            ID = reader.GetInt32(3),
+                            AsortCode = reader.GetString(4),
+                            Quant = reader.GetFloat(5),
+                            Summ = reader.GetFloat(6),
                             VimirNo = tempAsortItem.VimirNo,
                             Vimir = vimir.Name,
                             Name = tempAsortItem.Name,
